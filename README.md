@@ -91,3 +91,12 @@ Based on the exploratory data analysis (EDA), several key insights can be drawn 
 - **Outliers exist in terms of brightness, edge strength, and object size, indicating the presence of distinct features in certain regions.**  
 - **Frequency domain and texture features are interrelated, showing that high-contrast areas tend to have strong frequency components.**  
 - **Clustering methods suggest natural groupings, with DBSCAN capturing irregular shapes and outliers better than K-Means.**
+
+---
+## 🔹**Model Selection – Faster R-CNN with Multi-Scale Fusion**
+- **Why Faster R-CNN?**  
+  - It detects objects (supernovae) at different scales.
+  - The **Region Proposal Network (RPN)** helps identify potential regions of interest.
+- **Multi-Scale Fusion**:
+  - Extract **multi-scale features** from CNN (e.g., ResNet, EfficientNet).
+  - Fuse different levels of extracted features for enhanced detection.
