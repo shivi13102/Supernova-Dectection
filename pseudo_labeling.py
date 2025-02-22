@@ -30,24 +30,35 @@ transform = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
-# Step 2: Extract Features from All Images
-image_folder = r"processed\train"
-image_paths = [os.path.join(image_folder, img) for img in os.listdir(image_folder)]
-features = np.array([extract_features(img, resnet, transform, device) for img in image_paths])
+# Step 2: Process Each Folder
+folders = ["train", "test", "trainval"]
+dataset_root = "processed"  # Adjust path if needed
 
-# Step 3: Apply K-Means Clustering
-k = 5  # Number of clusters (adjust based on dataset)
-kmeans = KMeans(n_clusters=k, random_state=42)
-kmeans.fit(features)
-labels = kmeans.labels_
-
-# Step 4: Assign Pseudo-Labels
-pseudo_labeled_data = list(zip(image_paths, labels))
-
-# Save Pseudo Labels
-txt_file = "pseudo_labels.txt"
-with open(txt_file, "w") as f:
-    for img, label in pseudo_labeled_data:
-        f.write(f"{img} {label}\n")
-
-print(f"Pseudo-labeling completed! Labels saved in {txt_file}")
+for folder in folders:
+    image_folder = os.path.join(dataset_root, folder)
+    image_paths = [os.path.join(image_folder, img) for img in os.listdir(image_folder) if img.endswith(('.png', '.jpg', '.jpeg'))]
+    
+    if not image_paths:
+        print(f"No images found in {image_folder}, skipping...")
+        continue
+    
+    print(f"Processing {len(image_paths)} images in {folder}...")
+    
+    features = np.array([extract_features(img, resnet, transform, device) for img in image_paths])
+    
+    # Step 3: Apply K-Means Clustering
+    k = 5  # Number of clusters (adjust based on dataset)
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    kmeans.fit(features)
+    labels = kmeans.labels_
+    
+    # Step 4: Assign Pseudo-Labels
+    pseudo_labeled_data = list(zip(image_paths, labels))
+    
+    # Save Pseudo Labels
+    txt_file = f"pseudo_labels_{folder}.txt"
+    with open(txt_file, "w") as f:
+        for img, label in pseudo_labeled_data:
+            f.write(f"{img} {label}\n")
+    
+    print(f"Pseudo-labeling completed for {folder}! Labels saved in {txt_file}")
