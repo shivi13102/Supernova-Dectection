@@ -91,6 +91,41 @@ Based on the exploratory data analysis (EDA), several key insights can be drawn 
 - **Outliers exist in terms of brightness, edge strength, and object size, indicating the presence of distinct features in certain regions.**  
 - **Frequency domain and texture features are interrelated, showing that high-contrast areas tend to have strong frequency components.**  
 - **Clustering methods suggest natural groupings, with DBSCAN capturing irregular shapes and outliers better than K-Means.**
+---
+## 🔹 Pseudo-Labeling (K-Means, GMM)
+I applied **pseudo-labeling** based on **unsupervised clustering** using **K-Means**. Here's the breakdown of the approach:
+
+### **1. Feature Extraction (Using Pretrained ResNet-50)**
+- Each image is passed through **ResNet-50** (without the final classification layer).
+- The output is a **high-dimensional feature vector** representing the image.
+- This ensures that the clustering is based on meaningful features rather than raw pixel values.
+
+### **2. Clustering Using K-Means**
+- K-Means is applied to the extracted feature vectors.
+- It groups similar images into **K clusters** (K = 5 in this case).
+- Each image is assigned a **cluster label** (pseudo-label).
+
+### **3. Pseudo-Labels Assignment**
+- The assigned cluster labels are **not actual class labels** but represent groups of similar images.
+- The output file (`pseudo_labels_{folder}.txt`) contains:
+  ```
+  image_path cluster_label
+  ```
+  Example:
+  ```
+  processed/train/img1.jpg 2
+  processed/train/img2.jpg 4
+  processed/test/img3.jpg 1
+  ```
+  This helps to:
+  - Use these pseudo-labels for **semi-supervised learning**.
+  - Identify groups of similar images for further labeling.
+  - Potentially refine clustering to assign meaningful labels.
+
+### **Why This Approach?**
+- Instead of manual labeling, **K-Means groups similar images**, which can be used to assign labels.
+- The **ResNet-50 feature extractor** ensures the clustering is **based on meaningful features** rather than raw pixels.
+- These pseudo-labels can be **used to train a model** (e.g., fine-tuning a classifier) with a mix of real and pseudo-labeled data.
 
 ---
 ## 🔹**Model Selection – Faster R-CNN with Multi-Scale Fusion**
