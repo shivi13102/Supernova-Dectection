@@ -7,6 +7,8 @@ from torch.utils.data import Dataset, DataLoader
 import torchvision.transforms as transforms
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 import torch.optim as optim
+from torchvision.models.detection import fasterrcnn_resnet50_fpn, FasterRCNN_ResNet50_FPN_Weights
+
 
 # Define Dataset Class
 class PseudoLabelDataset(Dataset):
@@ -55,10 +57,14 @@ transform = transforms.Compose([
 
 # Load Dataset
 dataset = PseudoLabelDataset("pseudo_labels_train.txt", transform=transform)
-train_loader = DataLoader(dataset, batch_size=4, shuffle=True, collate_fn=lambda x: tuple(zip(*x)))
+def collate_fn(batch):
+    return tuple(zip(*batch))
+
+train_loader = DataLoader(dataset, batch_size=4, shuffle=True, collate_fn=collate_fn)
+
 
 # Load Pretrained Faster R-CNN Model
-model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
+model = fasterrcnn_resnet50_fpn(weights=FasterRCNN_ResNet50_FPN_Weights.COCO_V1)
 num_classes = 6  # 5 clusters + 1 background
 in_features = model.roi_heads.box_predictor.cls_score.in_features
 model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
